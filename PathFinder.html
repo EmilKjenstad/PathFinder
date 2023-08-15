@@ -1,0 +1,312 @@
+<HTML>
+	<HEAD>
+		<META CHARSET="UTF-8">
+		<TITLE>PathFinder</TITLE>
+		<LINK REL="stylesheet" TYPE="text/css" HREF="PathFinder.css">
+		<LINK REL="stylesheet" TYPE="text/css" HREF="PathFinderSpillere.css">
+		<LINK REL="stylesheet" TYPE="text/css" HREF="PathFinderVegg.css">
+	</HEAD>
+	<BODY>
+		<div id="divContainer">
+			<div id="divCenter">
+				<div id="divBanner"></div>
+				<div id="divContent">
+					<div id="divPlayer"></div>
+						<ul id="play">
+							<li id ="liPlay">Play Now</li>
+							<li id ="liInfo">Instructions</li>
+						</ul>
+				</div>
+			</div>
+		</div>
+			<SCRIPT>
+				var walkAnimation = ["url(image/player.png)","url(image/playerWalkOne.png)","url(image/playerWalkTwo.png)"];
+				var screenImage = ["url(image/introSkjerm.png)","url(image/spillSkjerm.png)","url(image/ferdigSkjerm.png)"]
+				var vegger = ["veggEn","veggTo","veggTre","veggFire","veggFem","veggSeks","veggSju","veggAtte","veggNi","veggTi","veggElleve","veggTolv","veggTretten","veggFjorten","veggFemten","veggSeksten"];
+				var entiteter = [
+									{name:"Jimmy", action:"divActionOne", sporsmal:false, tekst:"Hvilken by er hovedstad i Norge?", svar:"Oslo", feilEn:"Sverige", feilTo:"Trodheim", rettSvar:"Oslo er korrekt! Sverige er i faktum et land og ikke en by."},
+									{name:"Thomas", action:"divActionTwo", sporsmal:false, tekst:"I hvilken verdensdel er Norge?", svar:"Europa", feilEn:"Amerika", feilTo:"Afrika", rettSvar:"Korrekt! Norge befinner seg i Europa."},
+									{name:"Eivind", action:"divActionThree", sporsmal:false, tekst:"Hva heter kongen i Norge?", svar:"Kong Harald", feilEn:"Kong Torild", feilTo:"Kong Eivind", rettSvar:"Kong Harald er riktig! Han har vert Norges konge siden 1991."},
+									{name:"Emil", action:"divActionFour", sporsmal:false, tekst:"Hva heter Norges statminister?", svar:"Erna Solberg", feilEn:"Siv Jensen", feilTo:"Emil Kjenstad", rettSvar:"Korrekt! Emil Kjenstad er skaperen av dette spillet og Siv Jensen er partileder for FrP."},
+									{name:"Jenny", action:"divActionSix", sporsmal:false, tekst:"Hvor gammel er du i det året du begynner på barneskolen?", svar:"6", feilEn:"18", feilTo:"3", rettSvar:"Riktig! man starter på skolen når man er 6 år gammel"},
+									{name:"Lindy", action:"divActionSeven", sporsmal:false, tekst:"Hvem er president i USA?", svar:"Donald J. Trump", feilEn:"Barack Obama", feilTo:"Emil Kjenstad",rettSvar:"Barack Obama er nesten korrekt, men Donald Trump er dagens president så dette er korrekt. Bra jobba!"}
+								];
+				var intro = [
+								"Du sier: Hei, kan du hjelpe meg med å finne veien ut?",
+								"Ukjent sier: Så klart, men først må du svare på spørsmålene til de seks som befinner seg her i labyrinten.",
+								"Du sier: Skjønner, og hva er spørsmålet ditt da?"
+							];
+				document.getElementById("divContent").style.backgroundImage = screenImage[0];
+				var step = 2;
+				var height = width = 50;
+				var LeftPos = testLeft = 5;
+				var TopPos = testTop = 10;
+				var marX, marY;
+				var walkInterval = setInterval(movement, 50);
+				var poengSum = 0;
+				var h = m = s = 0;
+				var kanFlytte = false;
+				var introduksjon = false;
+				
+				/*function til å starte spillet*/
+				document.getElementById("liPlay").onclick = function ()	{	//Starter Spillet
+					document.getElementById("play").innerHTML = "";
+					add();
+					document.getElementById("divContent").innerHTML += "<div id='divInfo'><p>Du sier: Hvordan kommer jeg meg ut? Kanskje noen av disse menneskene kan hjelpe meg?<button class='infoKnapp' id='btnNeste'>Neste</button></p></div>";
+					document.getElementById("divContent").innerHTML += "<div id='divTimer'></div>";
+					document.getElementById("divPlayer").style.marginLeft = LeftPos +"px";
+					document.getElementById("divPlayer").style.marginTop = TopPos + "px";
+					document.getElementById("divContent").style.backgroundImage = screenImage[1];
+					document.getElementById("divPlayer").style.animationPlayState = "paused";
+					document.getElementById("divPlayer").style.animation = "start 1s";
+					
+					/*når en piltast blir trykket så kjører funktsjonen. her så finner vi ut om spilleren kan flytte seg
+					den retningen brukeren har valgt og forskjellige kollisjoner som kan skje*/
+					document.onkeydown = function (e) {
+						e = window.event;
+						/*kan flytte bestemmes om brukeren er i spørsmål eller introdukjson. Når han skal svare på spm 
+						eller har intro så kan brukeren ikke flytte på spilleren. når brukeren kan flytte så kjøres
+						if setningen. ellers så skjer det ikkeno*/
+						if (kanFlytte == true) {
+							var documentX = Number(document.getElementById("divCenter").offsetLeft+3);
+							var documentY = Number(document.getElementById("divContent").offsetTop+3);
+							var punktEn = punktTo = false;
+							var TVX = NVX = LeftPos;
+							var THX = NHX = (LeftPos+width);
+							var TVY = THY = TopPos;
+							var NVY = NHY = (TopPos+height);
+							
+							if (e.keyCode == 38) {	//Up Arrow
+								testTop = testTop-5;
+								for (i=0; i<vegger.length; i++) {
+									/*sjekker om punktene kan flytte seg til det nye området. hvis det ene punktet er
+									innafor det bestemte området (veggene) så blir variabelen lik true som vi bruker lenger ned*/
+									if(vegger[i] == document.elementFromPoint((documentX+TVX),(documentY+TVY-4)).id) {punktEn = true;};
+									if(vegger[i] == document.elementFromPoint((documentX+THX-4),(documentY+THY-4)).id) {punktTo = true;};
+								}
+								document.getElementById("divPlayer").style.transform = "rotate(0deg)";
+							}
+							else if (e.keyCode == 40) {	//Down Arrow
+								testTop = testTop+5;
+								document.getElementById("divPlayer").style.transform = "rotate(180deg)";
+								for (i=0; i<vegger.length; i++) {
+									if(vegger[i] == document.elementFromPoint((documentX+NVX),(documentY+NVY)).id && document.elementFromPoint((documentX+NVX),(documentY+NVY)).id !== "veggSeksten") {punktEn = true;};
+									if(vegger[i] == document.elementFromPoint((documentX+NHX-4),(documentY+NHY)).id && document.elementFromPoint((documentX+NHX-4),(documentY+NHY)).id !== "veggSeksten") {punktTo = true;};
+								}
+								/*siden spillet kan bare avsluttes når brukeren trykker på pil ned så legger vi til en
+								test for å sjekke om brukeren treffer sluttveggen. om han treffer veggen så kjøres en
+								funksjon som avslutter spillet*/
+								if (document.elementFromPoint((documentX+NHX),(documentY+NHY+5)).id == "veggSeksten") {end();}
+								else if (document.elementFromPoint((documentX+NVX),(documentY+NVY+5)).id == "veggSeksten") {end();}
+							}
+							else if (e.keyCode == 37) {	//Left Arrow
+								testLeft = testLeft-5;
+								for (i=0; i<vegger.length; i++) {
+									if(vegger[i] == document.elementFromPoint((documentX+NVX-4),(documentY+NVY-4)).id) {punktEn = true;};
+									if(vegger[i] == document.elementFromPoint((documentX+TVX-4),(documentY+TVY)).id) {punktTo = true;};
+								}
+								document.getElementById("divPlayer").style.transform = "rotate(-90deg)";
+							}
+							else if (e.keyCode == 39) {	//Right Arrow
+								testLeft = testLeft+5;
+								for (i=0; i<vegger.length; i++) {
+									if(vegger[i] == document.elementFromPoint((documentX+NHX),(documentY+NHY-4)).id) {punktEn = true;};
+									if(vegger[i] == document.elementFromPoint((documentX+THX),(documentY+THY)).id) {punktTo = true;};
+								};
+								document.getElementById("divPlayer").style.transform = "rotate(90deg)";
+							}
+							/*Etter if setningene over så sjekker vi nå om begge punktene er innafor det bestemte
+							området som spilleren kan flytte seg i. testvariablene blir til de faste variablene som
+							vi bruker til å flyee spilleren. hvis det viser seg at bare ett av punktene eller ingen
+							av punktene er innafor det bestemte området så resettes testvariablene til det det var
+							før brukeren flytta ved hjelp av de faste variablene*/
+							if (punktEn == true && punktTo == true){
+								TopPos = testTop;
+								LeftPos = testLeft;
+								document.getElementById("divPlayer").style.marginTop = TopPos + "px";
+								document.getElementById("divPlayer").style.marginLeft = LeftPos + "px";
+							}
+							else {
+								testTop = TopPos;
+								testLeft = LeftPos;
+							}
+						}
+						/*funksjon som kjøres når brukeren treffer sluttveggen. her så har vi en variabel som starter med
+						0 i verdi og det blir lagt til en for hver spørsmål som har blitt fullført. i testen etter forløkken
+						så sjekker vi om variabelen (som sjekker hvor mange som har blitt besvart) er lik hvor mange spørsmål
+						som brukeren trenger for å komme seg ut. Hvis han har løst alle så går vi til slutt skjermen hvor det
+						står poengsum, men hvis det mangler noe så blir det skrevet ut hvor mange spørsmål som trengs å bli
+						besvart før han får kommet seg ut*/
+						function end() {
+							var fullforte = 0;
+							for (var fullfort of entiteter) {
+								if (fullfort.sporsmal == true) {
+									fullforte++;
+								}
+							}
+							if (fullforte == 6) {
+								var tid = h + ":" + m + ":" + s;
+								kanFlytte = false;
+								clearInterval(tidtaker);
+								clearInterval(walkInterval);
+								document.getElementById("divContent").style.backgroundImage = screenImage[2];
+								document.getElementById("divContent").innerHTML = "<h1 align='center'>Gratulerer,</h1><p align='center'>du har fullført spillet! Du endte opp med " + poengSum + " poeng med en tid på " + tid + ". Klarer du å slå dette? trykk <button id='btnRestart'>her</button> for å starte på nytt.</p>";
+								document.getElementById("btnRestart").onclick = function () {location.reload();}
+							}
+							else {
+								kanFlytte = false;
+								document.getElementById("divInfo").innerHTML = "Det er " + (6-fullforte) + " spørsmål som ennå ikke har blitt besvart. Kom tilbake når du har svart på de.";
+								document.getElementById("divInfo").style.backgroundColor = "white";
+								setTimeout(function(){
+									kanFlytte = true;
+									document.getElementById("divInfo").style.backgroundColor = "skyblue";
+									document.getElementById("divInfo").innerHTML = "";
+								},3000)
+							}
+						}
+						/*inni forløkken så kjøres det gjennom alle NPCene for å sjekke om brukeren har kollidert med
+						en av NPCene. hvis en NPC har blitt kolidert med så hoppes vi ut av løkken og funktsjonen
+						spm blir kjørt*/
+						for (i=0; i<entiteter.length; i++) {
+							if (document.elementFromPoint((documentX+TVX),(documentY+TVY)).id == entiteter[i].action) {
+								spm();
+								break;
+							}
+							else if (document.elementFromPoint((documentX+THX),(documentY+THY)).id == entiteter[i].action) {
+								spm();
+								break;
+							}
+							else if (document.elementFromPoint((documentX+NVX),(documentY+NVY)).id == entiteter[i].action) {
+								spm();
+								break;
+							}
+							else if (document.elementFromPoint((documentX+NHX),(documentY+NHY)).id == entiteter[i].action) {
+								spm();
+								break;
+							}
+						}
+					}
+					/*Vi sjekker først om spilleren har fullført introduksjonsdelen med hjelp av true false. om spilleren
+					har ikke gjort introduksjon enda så hvil den komme opp i første omgang. inni denne ifsetningen så bestemmer
+					vi at introdukjsonsdelen har blitt fullført slik at den ikke kommer opp igjen, spilleren kan ikke flytte
+					på seg under denne delen og den første introduksjonsdelen kommer opp.*/
+					function spm() {
+						var person = entiteter[i];
+						var svarAlternativer = [];
+						if (introduksjon == false) {
+							introduksjon = true;
+							kanFlytte = false;
+							var knapp = "<button class='infoKnapp' id='btnInfo2'>Neste</button>";
+							var x = 0;
+							document.getElementById("divInfo").style.backgroundColor = "white";
+							document.getElementById("divInfo").innerHTML = "<p><span id='parIntro'>" + intro[x] + "</span> " + knapp + "</p>";
+							/*her så blar vi gjennom intro arrayet for hver trykk som blir gjort på knappen. if setningen
+							sier at hvis x (det som bestemmer hvilken del av intro man er på) er lik lengden på arrayet
+							så betyr det at alle introduksjontekst har blitt kjørt og spørsmålet vill komme opp.*/
+							document.getElementById("btnInfo2").onclick = function () {x++;
+								if (x == intro.length){stillSpm();}
+								else {
+									document.getElementById("parIntro").innerHTML = intro[x];
+								}
+							}
+						}
+						/*Hvis introdukjsonsdelen er allerede gjort så hopper vi rett på til spørsmålet*/
+						else if (entiteter[i].sporsmal == false) {
+							stillSpm()
+						}
+						/*vi starter med å pushe svaralternativene til spm i et tomt array. vi bruker dette arrayet
+						til å skrive ut alternativene i en tilfeldig rekkefølge inni i en forløkke og gir id på svarene som hva alternativet
+						er. vi bruker splice for å så fjernet alternativet fra arrayet slik at samme alternativ ikke kan komme flere ganger.*/
+						function stillSpm() {
+							kanFlytte = false;
+							document.getElementById("divInfo").style.backgroundColor = "white";
+							svarAlternativer.push(person.svar);
+							svarAlternativer.push(person.feilEn);
+							svarAlternativer.push(person.feilTo);
+							var lengde = svarAlternativer.length
+							
+							document.getElementById("divInfo").innerHTML = person.name + " sier: " + person.tekst + "<br/>";
+							for (i=0; i<lengde; i++) {
+								var random = Math.floor(Math.random()*svarAlternativer.length);
+								document.getElementById("divInfo").innerHTML += "<button class='svarKnapp' id='" + svarAlternativer[random] + "'>" + svarAlternativer[random] + "</button>";
+								svarAlternativer.splice(random, 1)
+							}
+							document.getElementById("divInfo").innerHTML += "<span id='spFeil'></span>";
+							/*Når du trykker på alternativet som har lik id som hva svaret er, så kjøres funksjonen.
+							vi endrer at verdien til spm blir til true som sier at spørsmålet er svart på og spørsmålet
+							vil ikke så bli stilt igjen. poengsummen vil få lagt til en i verdien og en timeout begynner.*/
+							document.getElementById(person.svar).onclick = function () {
+								document.getElementById("divInfo").innerHTML = person.name + " sier: " + person.rettSvar;
+								person.sporsmal = true;
+								poengSum++;
+								/*jeg valgte å bruke timout slik at brukeren blir tvunget til å lese hva som blir sagt før han kan gå videre.
+								denne funksjonen fjerner teksten og spilleren kan nå flytte*/
+								setTimeout(function() {
+									kanFlytte = true;
+									document.getElementById("divInfo").innerHTML = "";
+									document.getElementById("divInfo").style.backgroundColor = "skyblue";
+								},3000)
+							}
+							/*om brukeren velger feil alternativ så blir the skrevet it i en span element at brukeren
+							valgte feil, at han skal prøve igjen og det blir trukket 2 poeng av poengsummen hans.
+							timeouten fjerner teksten etter 2 sek*/
+							document.getElementById(person.feilEn).onclick = document.getElementById(person.feilTo).onclick = function () {
+								document.getElementById("spFeil").innerHTML = person.name + " sier: Dette er feil. Prøv igjen";
+								poengSum = (poengSum-2);
+								setTimeout(function () {
+									document.getElementById("spFeil").innerHTML = "";	
+								},2000)
+							}
+						}
+					}
+					/*function som gjør fjerner teksten og gir muligheten til å flytte*/
+					document.getElementById("btnNeste").onclick = function () {
+						document.getElementById("divInfo").innerHTML = "";
+						document.getElementById("divInfo").style.backgroundColor = "skyblue";
+						kanFlytte = true;
+					}
+					/*en funksjon som starter tiden det tar for spilleren å løse spillet.
+					ifsetningene endrer fra sekunder til minutter og minutter til timer når de når 60*/
+					var tidtaker = setInterval(function () {
+						document.getElementById("divTimer").innerHTML = h + ":" + m + ":" + s;
+						s++
+						if (s == 60) {
+							s = 0;
+							m++;
+						}
+						if (m == 60) {
+							m = 0;
+							h++;
+						}
+					},1000);
+				}
+				document.getElementById("liInfo").onclick = function () { //Informasjon om hvordan man spiller
+					clearInterval(walkInterval);
+					document.getElementById("divContent").innerHTML = "<h3 align='center'>instruksjoner</h3>";
+					document.getElementById("divContent").innerHTML += "<p align='center'>Trykk på piltastene for å bevege spilleren rundt i løypa. Svar på spørsmålene til de som er i laburinten for å komme deg ut. Når du har svart på alle så går du til motsatt ende fra hvor du starta og du kommer deg ut.</p>";
+					document.getElementById("divContent").innerHTML += "<ul id='play'><li id='liBack'>Back</li></ul>";
+					document.getElementById("liBack").onclick = function () {location.reload();}
+				}
+				function movement()	{ //Legger til animasjon for bevegelsen til spilleren
+					var boxLeftPos = document.getElementById("divPlayer").offsetLeft;
+					var boxTopPos = document.getElementById("divPlayer").offsetTop;
+					if (boxLeftPos !== marX || boxTopPos !== marY) {
+						if (step == 2)	{step = 1;}
+						else {step = 2;}
+						marX = boxLeftPos;
+						marY = boxTopPos;
+					}
+					else {step = 0;}
+					document.getElementById("divPlayer").style.backgroundImage = walkAnimation[step];
+				}
+				function add()	{ /*Legger til vegger og NPC i spillet*/
+					for (i=0; i<entiteter.length; i++)	{
+						document.getElementById("divContent").innerHTML += "<div id='" + entiteter[i].action + "'></div>";
+					}
+					for (i=0; i<vegger.length; i++)	{
+						document.getElementById("divContent").innerHTML += "<div id='" + vegger[i] + "'></div>";
+					}
+				}
+			</SCRIPT>
+	</BODY>
+</HTML>

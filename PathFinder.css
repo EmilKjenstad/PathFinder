@@ -1,0 +1,133 @@
+			#divBanner	{
+				float:left;
+				width:1000px;
+				height:150px;
+				background-image:url(image/PathFinder.png);
+				color:white;
+			}
+			#divCenter	{
+				margin:auto;
+				width:1000px;
+			}
+			#divContainer	{
+				margin:auto;
+				width:1150px;
+				height:590px;
+				border-radius: 15px;
+				background-color:skyblue;
+			}
+			#divPlayer {
+				width: 50px; 
+				height: 50px; 
+				position:relative;
+				animation: flytt 10s infinite;
+				float:left;
+				z-index:1;
+			}
+			#divContent	{
+				float:left;
+				width:1000px;
+				height:375px;
+				transition:2s;
+			}
+			#divFerdig {
+				background-color:white;
+				width:500px;
+				height:300px;
+				margin:auto;
+				text-align:center;
+			}
+			#divInfo {
+				float:left;
+				width:1000px;
+				height:50px;
+				margin-bottom:0px;
+				background-color:white;
+			}
+			body	{
+				background-color:F1F1F1;
+			}
+			#parIntro {
+				margin-top:0px;
+			}
+			#play	{
+				margin:390px;
+				margin-top:125px;
+				list-style-type: none;
+				padding: 0px;
+				background-color:red;
+				width:200px;
+				display:block;
+				color:white;
+				text-align:center;
+			}
+			#play li {
+				display:block;
+				color:white;
+				text-align:center;
+				padding:11px;
+				text-decoration: none;
+			}
+			#play li:hover {
+				background-color:darkred;
+				transition: 0.5s;
+			}
+			ul {
+				list-style-type:none;
+				text-align:center;
+			}
+			@keyframes flytt {
+				0% {left: 10px; top: 145px; transform: rotate(90deg);}
+				5% {left: 310px; top: 145px; transform: rotate(90deg);}
+				6% {left: 310px; top: 145px; transform: rotate(45deg);}
+				7% {left: 310px; top: 145px; transform: rotate(135deg);}
+				10% {left: 310px; top: 145px; transform: rotate(0deg);}
+				15% {left: 310px; top: 40px; transform: rotate(0deg);}
+				20% {left: 310px; top: 40px; transform: rotate(90deg);}
+				25% {left: 615px; top: 40px; transform: rotate(90deg);}
+				30% {left: 615px; top: 40px; transform: rotate(180deg);}
+				35% {left: 615px; top: 145px; transform: rotate(180deg);}
+				40% {left: 615px; top: 145px; transform: rotate(90deg);}
+				45% {left: 920px; top: 145px; transform: rotate(90deg);}
+				46% {left: 920px; top: 145px; transform: rotate(45deg);}
+				47% {left: 920px; top: 145px; transform: rotate(135deg);}
+				48% {left: 920px; top: 145px; transform: rotate(45deg);}
+				50% {left: 920px; top: 145px; transform: rotate(270deg);}
+				55% {left: 615px; top: 145px; transform: rotate(270deg);}
+				56% {left: 615px; top: 145px; transform: rotate(225deg);}
+				57% {left: 615px; top: 145px; transform: rotate(315deg);}
+				60% {left: 615px; top: 145px; transform: rotate(180deg);}
+				65% {left: 615px; top: 240px; transform: rotate(180deg);}
+				70% {left: 615px; top: 240px; transform: rotate(270deg);}
+				75% {left: 310px; top: 240px; transform: rotate(270deg);}
+				80% {left: 310px; top: 240px; transform: rotate(360deg);}
+				85% {left: 310px; top: 145px; transform: rotate(360deg);}
+				90% {left: 310px; top: 145px; transform: rotate(270deg);}
+				95% {left: 10px; top: 145px; transform: rotate(270deg);}
+				96% {left: 10px; top: 145px; transform: rotate(315deg);}
+				97% {left: 10px; top: 145px; transform: rotate(225deg);}
+				98% {left: 10px; top: 145px; transform: rotate(315deg);}
+				100% {left: 10px; top: 145px; transform: rotate(90deg);}
+			}
+			@keyframes start {
+				0% {left:0px; top:0px; transform: rotate(0deg);}
+				50% {left:0px; top:0px; transform: rotate(180deg);}
+				100% {left:0px; top:0px; transform: rotate(0deg);}
+			}
+			.infoKnapp {
+				background-color: #4CAF50; /* Green */
+				border: none;
+				color: white;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 20px;
+			}
+			.svarKnapp {
+				background-color: skyblue;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin:5px;
+			}
